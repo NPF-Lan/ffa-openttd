@@ -1,0 +1,44 @@
+kind: Pod
+apiVersion: v1
+metadata:
+  name: openttd
+  labels:
+    app: openttd
+spec:
+  containers:
+  - name: openttd
+    image: bateau/openttd:latest
+    imagePullPolicy: Always
+    ports:
+    - containerPort: 3979
+    readinessProbe: &default_probe
+      tcpSocket:
+        port: 3979
+      initialDelaySeconds: 10
+      timeoutSeconds: 5
+    livenessProbe: *default_probe
+    resources:
+      requests:
+        memory: "500Mi"
+        cpu: "500m"
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: openttd
+  labels:
+    app: openttd
+spec:
+  type: ClusterIP
+  clusterIP: 10.101.200.10
+  selector:
+    app: openttd
+  ports:
+    - name: tcp-port
+      protocol: TCP
+      port: 3979
+      targetPort: 3979
+    - name: udp-port
+      protocol: UDP
+      port: 3979
+      targetPort: 3979
